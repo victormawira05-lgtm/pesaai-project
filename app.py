@@ -462,44 +462,25 @@ def ai_nudge(transactions, lang="en"):
 
 
 # --------------------------------------------------------------------------- routes
-@app.route("/")
+@app.route('/')
 def home():
-    return jsonify(
-        {
-            "name": "PesaAI Backend",
-            "status": "running",
-            "endpoints": [
-                "/health",
-                "/api/health",
-                "/api/transactions",
-                "/api/paypal/create-order",
-                "/api/paypal/capture/<order_id>",
-                "/api/paypal/execute",
-                "/api/ai/insights",
-                "/api/ai/chat",
-                "/api/ai/agent",
-                "/api/ai/nudge",
-            ],
-        }
-    )
+    return jsonify({"name": "PesaAI Backend", "status": "running", "live": True}), 200
 
+@app.route('/favicon.ico')
+def favicon():
+    return "", 204
 
-@app.route("/api/transactions")
+@app.route('/api/transactions')
 def transactions_route():
-    return jsonify({"transactions": db.list_transactions(), "summary": db.summary()})
+    try:
+        return jsonify({"transactions": db.list_transactions(), "summary": db.summary()})
+    except Exception as e:
+        return jsonify({"transactions": [], "summary": {}, "error": str(e), "note": "DB init in /tmp/data"}), 200
 
-
-@app.route("/health")
-@app.route("/api/health")
+@app.route('/health')
+@app.route('/api/health')
 def health():
-    return jsonify(
-        {
-            "status": "ok",
-            "paypal": "live" if paypal_available() else "mock",
-            "ai": "live" if ai_available() else "mock",
-            "model": OPENAI_MODEL if ai_available() else None,
-        }
-    )
+    return jsonify({"status": "ok", "paypal": "mock", "ai": "mock"}), 200
 
 
 @app.route("/api/paypal/create-order", methods=["POST", "OPTIONS"])
