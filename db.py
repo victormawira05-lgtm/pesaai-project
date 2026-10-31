@@ -16,7 +16,7 @@ import sqlite3
 import threading
 from datetime import datetime, timezone
 
-DB_PATH = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(__file__), "pesaai.db"))
+DB_PATH = os.getenv("DATABASE_PATH", "/tmp/data/pesaai.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
 _LOCK = threading.Lock()
