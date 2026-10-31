@@ -72,7 +72,7 @@ automations; multi-step agent plans ("pay rent and move the rest to savings").
 - The backend is on Render free tier; allow ~20-30s for the first request.
 
 ## Links
-- Repo: https://github.com/victormawira05-lgtm/pesaai-project/tree/main
+- Repo:https://github.com/victormawira05-lgtm/pesaai-project
 - App: https://mobile-bankig-api-2.onrender.com
 - API: https://mobile-bankig-api-1.onrender.com
 - Demo video: <YouTube link>
