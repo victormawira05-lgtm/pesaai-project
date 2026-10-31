@@ -1,0 +1,13 @@
+# PesaAI backend environment variables
+# Copy to .env and fill in real values. Never commit the real .env.
+
+# PayPal REST API (Sandbox). Create an app at https://developer.paypal.com
+# Dashboard -> Apps & Credentials -> Sandbox -> your app.
+PAYPAL_CLIENT_ID=your_sandbox_client_id
+PAYPAL_SECRET=your_sandbox_secret
+
+# OpenAI API key for the AI coach and agent. https://platform.openai.com/api-keys
+OPENAI_API_KEY=your_openai_api_key
+
+# Optional: model override (defaults to gpt-4o-mini)
+OPENAI_MODEL=gpt-4o-mini

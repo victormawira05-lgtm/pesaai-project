@@ -1,0 +1,7 @@
+# PesaAI backend dependencies
+Flask>=3.0
+Flask-Cors>=4.0
+requests>=2.31
+python-dotenv>=1.0
+gunicorn>=21.2
+openai>=1.40

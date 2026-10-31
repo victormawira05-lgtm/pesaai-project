@@ -1,0 +1,25 @@
+# Secrets, never commit real keys
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# SQLite database files (created at runtime)
+*.db
+*.sqlite3
+
+# Logs and OS cruft
+*.log
+.DS_Store

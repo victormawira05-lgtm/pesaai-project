@@ -1,0 +1,52 @@
+# Render Blueprint for PesaAI (Infrastructure as Code).
+# Deploy both services from the repo: https://render.com/docs/blueprint-spec
+#
+# Service names match the existing deployment so the public URLs stay the same:
+#   backend  -> https://mobile-bankig-api-1.onrender.com
+#   frontend -> https://mobile-bankig-api-2.onrender.com
+#
+# Secrets (sync: false) are NOT stored in this file. Set them once in the Render
+# dashboard: Service -> Environment. SQLite needs no provisioning.
+
+services:
+  # ---- Backend API (Flask + gunicorn) ----
+  - type: web
+    name: mobile-bankig-api-1
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+    # SQLite needs nothing here: on free tier the file lives in the app dir
+    # (resets on redeploy, fine for a demo). For durability across deploys,
+    # switch to a paid plan and add a disk, then set DATABASE_PATH to it:
+    #   envVars: - key: DATABASE_PATH
+    #              value: /var/data/pesaai.db
+    #   disk: { name: pesaai-data, mountPath: /var/data, sizeGB: 1 }
+
+  # ---- Frontend (React + Vite, static) ----
+  - type: web
+    name: mobile-bankig-api-2
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      # Build-time: where the frontend finds the API.
+      - key: VITE_API_URL
+        value: https://mobile-bankig-api-1.onrender.com
+    routes:
+      # SPA fallback so client routes resolve to index.html.
+      - type: rewrite
+        source: /*
+        destination: /index.html
