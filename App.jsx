@@ -4,7 +4,7 @@ import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-communi
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const API = import.meta.env.VITE_API_URL ?? 'https://mobile-banking-api-1.onrender.com';
+const API = import.meta.env.VITE_API_URL ?? 'https://mobile-bankig-api-1.onrender.com';
 
 const gridTheme = themeQuartz.withParams({
   accentColor: '#1b7a3f',
@@ -15,15 +15,9 @@ const gridTheme = themeQuartz.withParams({
   oddRowBackgroundColor: '#fafdfb',
 });
 
-const usd = (n) => {
-  const v = Number(n) || 0;
-  const sign = v < 0 ? '-' : '';
-  return `${sign}$${Math.abs(v).toFixed(2)}`;
-};
-const uuid = () => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return String(Date.now() + Math.random());
-};
+const usd = (n) => `${n < 0 ? '-' : ''}$${Math.abs(Number(n) || 0).toFixed(2)}`;
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()));
+
 export default function App() {
   const [txns, setTxns] = useState([]);
   const [summary, setSummary] = useState({ income: 0, spent: 0, net: 0 });
@@ -57,25 +51,25 @@ export default function App() {
   }, []);
 
   const post = useCallback(async (path, body, headers = {}) => {
-    const res = await fetch(${API}${path}, {
+    const res = await fetch(`${API}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw Object.assign(new Error(data.detail || data.error || HTTP ${res.status}), { data });
+    if (!res.ok) throw Object.assign(new Error(data.detail || data.error || `HTTP ${res.status}`), { data });
     return data;
   }, []);
 
   const loadData = useCallback(async () => {
-    const res = await fetch(${API}/api/transactions);
+    const res = await fetch(`${API}/api/transactions`);
     const data = await res.json();
     setTxns(data.transactions || []);
     setSummary(data.summary || { income: 0, spent: 0, net: 0 });
   }, []);
 
   useEffect(() => {
-    fetch(${API}/health).then((r) => r.json()).then(setHealth).catch(() => setHealth(null));
+    fetch(`${API}/health`).then((r) => r.json()).then(setHealth).catch(() => setHealth(null));
     (async () => {
       try {
         await loadData();
@@ -94,7 +88,7 @@ export default function App() {
     post('/api/ai/nudge', { lang })
       .then((n) => {
         if (!n?.reply) return;
-        setMessages((m) => [...m, { role: 'assistant', content: 💡 ${n.reply} }]);
+        setMessages((m) => [...m, { role: 'assistant', content: `💡 ${n.reply}` }]);
         if (n.type === 'proposal' && n.action) setProposal({ ...n.action, source: 'nudge' });
       })
       .catch(() => {});
@@ -146,10 +140,10 @@ export default function App() {
         window.open(data.approve_url, '_blank', 'noopener');
         setPayMsg('Approve in the PayPal window, then click "Complete top-up".');
       } else {
-        setPayMsg(Running in mock mode (order ${data.id}). Click "Complete top-up" to simulate.);
+        setPayMsg(`Running in mock mode (order ${data.id}). Click "Complete top-up" to simulate.`);
       }
     } catch (e) {
-      setPayMsg(Could not create the order: ${e.message});
+      setPayMsg(`Could not create the order: ${e.message}`);
       toast('Order creation failed', 'err');
     } finally {
       setPayBusy(false);
@@ -162,17 +156,17 @@ export default function App() {
     setPayMsg('Capturing the payment...');
     try {
       const amt = parseFloat(amount) || 0;
-      const data = await post(/api/paypal/capture/${order.id}, { amount: amt, description: 'PayPal top-up' });
+      const data = await post(`/api/paypal/capture/${order.id}`, { amount: amt, description: 'PayPal top-up' });
       if (data.status === 'COMPLETED') {
         await loadData();
-        setPayMsg(Top-up complete (${data.mode}). Added ${usd(amt)}.);
-        toast(Added ${usd(amt)} via PayPal, 'ok');
+        setPayMsg(`Top-up complete (${data.mode}). Added ${usd(amt)}.`);
+        toast(`Added ${usd(amt)} via PayPal`, 'ok');
       } else {
-        setPayMsg(Capture returned status ${data.status}.);
+        setPayMsg(`Capture returned status ${data.status}.`);
       }
       setOrder(null);
     } catch (e) {
-      setPayMsg(Capture failed: ${e.message}. Approve the order in PayPal first.);
+      setPayMsg(`Capture failed: ${e.message}. Approve the order in PayPal first.`);
       toast('Capture failed', 'err');
     } finally {
       setPayBusy(false);
@@ -192,7 +186,7 @@ export default function App() {
       setMessages((m) => [...m, { role: 'assistant', content: data.reply }]);
       if (data.type === 'proposal') setProposal(data.action);
     } catch (e) {
-      setMessages((m) => [...m, { role: 'assistant', content: Sorry, I hit an error: ${e.message} }]);
+      setMessages((m) => [...m, { role: 'assistant', content: `Sorry, I hit an error: ${e.message}` }]);
     } finally {
       setCoachBusy(false);
     }
@@ -210,7 +204,7 @@ export default function App() {
     rec.maxAlternatives = 1;
     rec.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
-      setInput((prev) => (prev ? ${prev} ${transcript} : transcript));
+      setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
     };
     rec.onerror = () => { setListening(false); toast('Voice input unavailable', 'err'); };
     rec.onend = () => setListening(false);
@@ -231,7 +225,7 @@ export default function App() {
       const data = await post('/api/ai/insights', { lang });
       setMessages((m) => [...m, { role: 'assistant', content: data.insights }]);
     } catch (e) {
-      setMessages((m) => [...m, { role: 'assistant', content: Sorry, I hit an error: ${e.message} }]);
+      setMessages((m) => [...m, { role: 'assistant', content: `Sorry, I hit an error: ${e.message}` }]);
     } finally {
       setCoachBusy(false);
     }
@@ -242,15 +236,15 @@ export default function App() {
     const p = proposal;
     setProposal(null);
     setCoachBusy(true);
-    setMessages((m) => [...m, { role: 'assistant', content: Sending ${usd(p.amount)} to ${p.recipient}... }]);
+    setMessages((m) => [...m, { role: 'assistant', content: `Sending ${usd(p.amount)} to ${p.recipient}...` }]);
     try {
       const data = await post('/api/paypal/execute', { amount: p.amount, recipient: p.recipient, reason: p.reason }, { 'Idempotency-Key': uuid() });
       await loadData();
-      setMessages((m) => [...m, { role: 'assistant', content: Done. Payout ${data.batch_id} is ${data.status} (${data.mode}). }]);
-      toast(Sent ${usd(p.amount)} to ${p.recipient}, 'ok');
+      setMessages((m) => [...m, { role: 'assistant', content: `Done. Payout ${data.batch_id} is ${data.status} (${data.mode}).` }]);
+      toast(`Sent ${usd(p.amount)} to ${p.recipient}`, 'ok');
     } catch (e) {
       const detail = e.data?.detail || e.message;
-      setMessages((m) => [...m, { role: 'assistant', content: I could not complete that payment: ${detail} }]);
+      setMessages((m) => [...m, { role: 'assistant', content: `I could not complete that payment: ${detail}` }]);
       toast('Payment failed', 'err');
     } finally {
       setCoachBusy(false);
@@ -261,7 +255,7 @@ export default function App() {
     <div className="app">
       <div className="toasts" aria-live="polite" aria-atomic="false">
         {toasts.map((t) => (
-          <div key={t.id} className={toast ${t.kind}}>{t.text}</div>
+          <div key={t.id} className={`toast ${t.kind}`}>{t.text}</div>
         ))}
       </div>
 
@@ -333,7 +327,7 @@ export default function App() {
 
           <div className="chat" role="log" aria-live="polite">
             {messages.map((m, i) => (
-              <div key={i} className={msg ${m.role}}>{m.content}</div>
+              <div key={i} className={`msg ${m.role}`}>{m.content}</div>
             ))}
             {coachBusy && <div className="msg assistant typing">...</div>}
 
@@ -366,12 +360,12 @@ export default function App() {
             {SpeechRec && (
               <button
                 type="button"
-                className={btn btn-ghost mic ${listening ? 'listening' : ''}}
+                className={`btn btn-ghost mic ${listening ? 'listening' : ''}`}
                 onClick={toggleVoice}
                 disabled={coachBusy}
                 aria-pressed={listening}
                 aria-label={listening ? 'Stop listening' : 'Speak to the coach'}
-                title={listening ? 'Listening, click to stop' : Speak (${lang === 'sw' ? 'Swahili' : 'English'})}
+                title={listening ? 'Listening, click to stop' : `Speak (${lang === 'sw' ? 'Swahili' : 'English'})`}
               >
                 {listening ? '■' : '🎤'}
               </button>
@@ -400,7 +394,7 @@ function Logo() {
 
 function StatCard({ label, value, sub, tone }) {
   return (
-    <div className={stat ${tone}}>
+    <div className={`stat ${tone}`}>
       <div className="stat-label">{label}</div>
       <div className="stat-value">{value}</div>
       <div className="stat-sub">{sub}</div>
@@ -410,7 +404,7 @@ function StatCard({ label, value, sub, tone }) {
 
 function StatusChip({ label, value, ok }) {
   return (
-    <span className={chip ${ok ? 'chip-ok' : 'chip-muted'}} title={${label}: ${value}}>
+    <span className={`chip ${ok ? 'chip-ok' : 'chip-muted'}`} title={`${label}: ${value}`}>
       <span className="dot" /> {label}: {value}
     </span>
   );
