@@ -4,8 +4,8 @@ import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-communi
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const API = import.meta.env.VITE_API_URL ?? 'https://mobile-bankig-api-1.onrender.com';
-
+const API = import.meta.env.VITE_API_URL ?? 'https://mobile-banking-api-1.onrender.com';
+const API = import.meta.env.VITE_API_URL ?? 'https://mobile-banking-api-1.onrender.com';
 const gridTheme = themeQuartz.withParams({
   accentColor: '#1b7a3f',
   borderRadius: 8,
