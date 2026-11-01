@@ -4,7 +4,7 @@ import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-communi
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const API = import.meta.env.VITE_API_URL ?? 'https://mobile-bankig-api-1.onrender.com';
+const API = import.meta.env.VITE_API_URL ?? 'https://mobile-banking-api-1.onrender.com';
 
 const gridTheme = themeQuartz.withParams({
   accentColor: '#1b7a3f',
@@ -15,9 +15,15 @@ const gridTheme = themeQuartz.withParams({
   oddRowBackgroundColor: '#fafdfb',
 });
 
-const usd = (n) => ${n < 0 ? '-' : ''}$${Math.abs(Number(n) || 0).toFixed(2)};
-const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()));
-
+const usd = (n) => {
+  const v = Number(n) || 0;
+  const sign = v < 0 ? '-' : '';
+  return `${sign}$${Math.abs(v).toFixed(2)}`;
+};
+const uuid = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return String(Date.now() + Math.random());
+};
 export default function App() {
   const [txns, setTxns] = useState([]);
   const [summary, setSummary] = useState({ income: 0, spent: 0, net: 0 });
