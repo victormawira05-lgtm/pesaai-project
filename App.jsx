@@ -409,3 +409,14 @@ function StatusChip({ label, value, ok }) {
     </span>
   );
 }
+function speak(text, lang='en-KE') {
+  // Browser speaks on your behalf
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang === 'SW' ? 'sw-KE' : 'en-KE';
+  utter.rate = 0.95;
+  window.speechSynthesis.speak(utter);
+}
+
+// Use it when AI replies:
+const aiReply = "Your income is well above spending, net $160.3. Moving $32.06 to savings now...";
+speak(aiReply, currentLang); // EN or SW toggle you already have
