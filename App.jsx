@@ -420,3 +420,14 @@ function speak(text, lang='en-KE') {
 // Use it when AI replies:
 const aiReply = "Your income is well above spending, net $160.3. Moving $32.06 to savings now...";
 speak(aiReply, currentLang); // EN or SW toggle you already have
+// Let user talk, AI listens and talks back
+const recognition = new window.webkitSpeechRecognition();
+recognition.lang = 'en-KE';
+recognition.onresult = (e) => {
+  const userSaid = e.results[0][0].transcript; // "Send 15 dollars to Jane"
+  // Send to your /api/coach endpoint
+  fetch('https://mobile-banking-api-1.onrender.com/api/coach', {
+    method: 'POST',
+    body: JSON.stringify({ message: userSaid })
+  }).then(r => r.json()).then(data => speak(data.reply))
+}
