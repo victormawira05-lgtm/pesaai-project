@@ -8,8 +8,8 @@ Built for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/).
 
 ## Live demo
 
-- **App (frontend):** https://mobile-bankig-api-2.onrender.com
-- **API (backend):** https://mobile-bankig-api-1.onrender.com
+- **App (frontend):**  https://pesaai-project-1.onrender.com
+- **API (backend):** https://pesaai-project.onrender.com
 
 > Render's free tier sleeps when idle, so the first request can take 20-30
 > seconds to wake the backend. After that it responds normally.
