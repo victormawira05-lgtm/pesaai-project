@@ -1,8 +1,6 @@
-# Devpost submission draft, PesaAI
+PesaAi
 
-Paste into the Devpost form. Edit freely. Keep the demo video under 3 minutes.
-
-## Elevator pitch (one line)
+## Elevator pitch 
 PesaAI is an AI money coach for Kenyan freelancers paid in USD via PayPal, that
 explains your money and can send PayPal payments on command, after you confirm.
 
