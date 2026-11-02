@@ -1,34 +1,32 @@
-# Mobile Banking Frontend
+# PesaAI - Voice AI Money Coach for Kenyan Freelancers
 
-A small React app that connects to the Flask API in this repository.
+Live: https://pesaai-project-1.onrender.com
+API: https://pesaai-project.onrender.com
+Video: https://youtu.be/QzsEKFjHCdc
 
-## Run locally
+Kenya has 5M+ freelancers paid in USD via PayPal, spending in KES via M-Pesa. PesaAI is a voice-enabled AI coach that turns PayPal income + M-Pesa spend into smart savings.
 
-1. Start the API:
-   ```bash
-   cd ..
-   export API_SIGNING_KEY="$(openssl rand -hex 32)"
-   export ALLOW_DEMO_ATTESTATION=1
-   python -m venv .venv
-   . .venv/bin/activate
-   pip install -r requirements.txt
-   flask --app app run --debug
-   ```
+## Features (Hackathon Scoring)
 
-2. In a second terminal, start the frontend:
-   ```bash
-   cd frontend
-   npm install
-   cp .env.example .env
-   npm run dev
-   ```
+- **PayPal API:** Orders + Payouts Sandbox, idempotency key, MOCK-PAYOUT-0FCE0066 SUCCESS mock mode
+- **M-Pesa:** Illustrative sim data (Daraja sandbox unstable, marked transparently)
+- **AI Coach:** Groq + fallback mock, analyzes $200 income vs $71.76 spend, proposes $32.06 savings
+- **Voice AI:** 🎤 Web Speech API, EN + SW (sw-KE), auto-transcribe + TTS response + payout confirmation by voice
+- **Proactive Nudge:** Save suggestion pop-up
 
-3. Open http://localhost:3000
+## Tech Stack
+React + AG Grid, Flask API, PayPal REST API, Groq AI, Web Speech API
 
-If port 3000 is already in use, Vite automatically starts on the next available port and prints the URL. To choose a port explicitly, set `PORT` when starting the frontend, for example `PORT=3001 npm run dev`.
+## Run Locally
 
-## Notes
-
-- The frontend registers a demo ECDSA device and calls the backend’s `/v1/devices`, `/v1/auth/token`, `/v1/accounts`, `/v1/beneficiaries`, and `/v1/payments` endpoints.
-- The demo username/password/OTP is the same one used by the backend tests:
-  - alice / StrongPass!123 / 123456
+1. Backend:
+```bash
+cd backend
+export API_SIGNING_KEY="$(openssl rand -hex 32)"
+pip install -r requirements.txt
+flask --app app run --debug
+cd frontend
+npm install
+cp .env.example .env
+# Set VITE_API_URL=https://pesaai-project.onrender.com in .env
+npm run dev
