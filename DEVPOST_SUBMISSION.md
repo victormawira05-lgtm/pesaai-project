@@ -73,6 +73,6 @@ automations; multi-step agent plans ("pay rent and move the rest to savings").
 
 ## Links
 - Repo:https://github.com/victormawira05-lgtm/pesaai-project
-- App: https://mobile-bankig-api-2.onrender.com
-- API: https://mobile-bankig-api-1.onrender.com
-- Demo video: <YouTube link>
+- App: https://pesaai-project-1.onrender.com
+- API:https://pesaai-project.onrender.com
+- Demo video: https://youtu.be/QzsEKFjHCdc
