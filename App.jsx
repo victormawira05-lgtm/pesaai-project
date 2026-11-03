@@ -4,12 +4,13 @@ import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-communi
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const API = import.meta.env.VITE_API_URL=https://'pesaai-project.onrender.com';
+const API = import.meta.env.VITE_API_URL || 'https://pesaai-project.onrender.com';
+
 const gridTheme = themeQuartz.withParams({
   accentColor: '#1b7a3f',
   borderRadius: 8,
   headerBackgroundColor: '#f1f7f2',
-  headerTextColor: '#14532d',
+  headerTextColor: 'rgba(17, 246, 17, 0.42)',
   fontFamily: 'Inter, system-ui, Arial, sans-serif',
   oddRowBackgroundColor: '#fafdfb',
 });
@@ -65,7 +66,19 @@ export default function App() {
     setSummary(data.summary || { income: 0, spent: 0, net: 0 });
   }, []);
 
-  // AI talks back - NEW
+  // NEW: Reset Demo handler
+  const handleReset = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/api/reset`, { method: 'POST' });
+      const data = await res.json();
+      await loadData();
+      toast(data.message || 'Reset to $10 demo', 'ok');
+      setMessages((m) => [...m, { role: 'assistant', content: '✅ Demo reset to $10 income. Try your PayPal top-up now!' }]);
+    } catch (e) {
+      toast(`Reset failed: ${e.message}`, 'err');
+    }
+  }, [loadData, toast]);
+
   const speak = useCallback((text) => {
     if (!text) return;
     window.speechSynthesis.cancel();
@@ -150,7 +163,7 @@ export default function App() {
     rec.maxAlternatives = 1;
     rec.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
-      sendMessageWithText(transcript); // AUTO SENDS NOW
+      sendMessageWithText(transcript);
     };
     rec.onerror = () => { setListening(false); toast('Voice error', 'err'); };
     rec.onend = () => setListening(false);
@@ -180,7 +193,11 @@ export default function App() {
       <div className="toasts">{toasts.map((t) => (<div key={t.id} className={`toast ${t.kind}`}>{t.text}</div>))}</div>
       <header className="topbar">
         <div className="brand"><Logo /><div><h1>PesaAI <span className="badge-ke">KE</span></h1><p className="tagline">AI money coach for Kenyan freelancers paid in USD via PayPal</p></div></div>
-        <div className="status"><StatusChip label="PayPal" value={health ? (health.paypal === 'live' ? 'Sandbox live' : 'mock') : '...'} ok={health?.paypal === 'live'} /><StatusChip label="AI" value={health ? (health.ai === 'live' ? health.model : 'mock') : '...'} ok={health?.ai === 'live'} /></div>
+        <div className="status">
+          <StatusChip label="PayPal" value={health ? (health.paypal === 'live' ? 'Sandbox live' : 'mock') : '...'} ok={health?.paypal === 'live'} />
+          <StatusChip label="AI" value={health ? (health.ai === 'live' ? health.model : 'mock') : '...'} ok={health?.ai === 'live'} />
+          <button className="btn btn-ghost" onClick={handleReset} style={{marginLeft: '8px', border: '1px solid #e5a0a0', background: '#fff5f5', color: '#a00', borderRadius: '20px', padding: '4px 12px', cursor: 'pointer'}}>Reset Demo</button>
+        </div>
       </header>
       <section className="stats">
         <StatCard label="Income" value={usd(summary.income)} sub="via PayPal" tone="pos" />
