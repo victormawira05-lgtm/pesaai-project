@@ -4,7 +4,7 @@ import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-communi
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const API = import.meta.env.VITE_API_URL=https://'pesaai-project.onrender.com';
+const API = 'https://pesaai-project.onrender.com';
 const gridTheme = themeQuartz.withParams({
   accentColor: '#1b7a3f',
   borderRadius: 8,
