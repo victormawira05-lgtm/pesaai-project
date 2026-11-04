@@ -1,6 +1,6 @@
 # PesaAI - Voice AI Money Coach for Kenyan Freelancers
 
-Live: https://pesaai-project-1.onrender.com
+Live: https://pesaai-project.onrender.com/api/health
 API: https://pesaai-project.onrender.com
 Video: https://youtu.be/QzsEKFjHCdc
 
