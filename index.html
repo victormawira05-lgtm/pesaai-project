@@ -1,63 +1,66 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PesaAI</title>
 <style>
-body{font-family:system-ui;background:#f8fafc;margin:0;padding:20px;color:#111}
+body{font-family:system-ui;background:#f8fafc;margin:0;padding:16px}
 .card{background:white;border-radius:12px;padding:16px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-h2{margin:0;font-size:14px;color:#666} .val{font-size:24px;font-weight:700;margin-top:4px}
-.btn{padding:10px 16px;border:0;border-radius:8px;font-weight:600;cursor:pointer;margin-right:8px}
-.btn-pay{background:#0070ba;color:white} .btn-reset{background:#111;color:white}
-table{width:100%;border-collapse:collapse;margin-top:10px} th,td{padding:8px;text-align:left;border-bottom:1px solid #eee;font-size:14px}
-.badge{padding:2px 8px;border-radius:999px;font-size:12px} .income{background:#dcfce7} .expense{background:#fee2e2}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.val{font-size:22px;font-weight:800} h2{font-size:12px;color:#666;margin:0}
+.btn{padding:10px 14px;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+.btn-pay{background:#0070ba;color:#fff} .btn-reset{background:#111;color:#fff} .btn-mic{background:#f59e0b}
+table{width:100%;border-collapse:collapse} th,td{padding:8px;border-bottom:1px solid #eee;font-size:13px}
+.insight{background:#eff6ff;border-left:4px solid #3b82f6;padding:8px;margin:6px 0;border-radius:6px;font-size:13px}
 </style>
-</head>
-<body>
-<h1>PesaAI - Freelancer Finance Kenya</h1>
+</head><body>
+<h1>PesaAI 🇰🇪 Freelancer Finance</h1>
 <div class="grid">
-<div class="card"><h2>INCOME (via PayPal)</h2><div class="val" id="income">$0</div></div>
-<div class="card"><h2>SPENT (M-Pesa sim)</h2><div class="val" id="spent" style="color:#dc2626">$0</div></div>
-<div class="card"><h2>NET (KES ~)</h2><div class="val" id="net">$0</div></div>
+<div class="card"><h2>INCOME (PayPal)</h2><div class="val" id="income">$0</div></div>
+<div class="card"><h2>SPENT (M-Pesa)</h2><div class="val" id="spent" style="color:#dc2626">$0</div></div>
+<div class="card"><h2>NET</h2><div class="val" id="net">$0</div></div>
 </div>
 <div class="card">
-<button class="btn btn-pay" onclick="payPal()">Pay with PayPal (+$10)</button>
+<button class="btn btn-pay" onclick="payPal()">Pay with PayPal +$10</button>
 <button class="btn btn-reset" onclick="resetDemo()">Reset Demo</button>
-<span id="msg" style="margin-left:10px;color:#059669"></span>
+<span id="msg" style="color:green;margin-left:10px"></span>
 </div>
-<div class="card">
-<h3>Transactions</h3>
-<table><thead><tr><th>Date</th><th>Description</th><th>Merchant</th><th>Amount</th><th>Type</th></tr></thead><tbody id="tx"></tbody></table>
+<div class="card"><h3>📊 Insights</h3>
+<div id="insights"></div>
 </div>
-<div class="card"><h3>AI Money Coach</h3><input id="chatInput" placeholder="Ask about your spending..." style="width:70%;padding:8px"><button onclick="askAI()" class="btn btn-reset">Ask</button><div id="aiReply" style="margin-top:10px;color:#333"></div></div>
+<div class="card"><h3>Transactions (7)</h3><table><thead><tr><th>Date</th><th>Desc</th><th>Merchant</th><th>Amount</th></tr></thead><tbody id="tx"></tbody></table></div>
+<div class="card"><h3>🤖 AI Money Coach + 🎤 Mic</h3>
+<div style="display:flex;gap:8px"><input id="chatInput" placeholder="Ask: How much did I spend on Naivas?" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ddd">
+<button class="btn btn-mic" onclick="startMic()">🎤</button><button class="btn btn-reset" onclick="askAI()">Ask</button></div>
+<div id="aiReply" style="margin-top:10px;background:#f9fafb;padding:10px;border-radius:8px"></div>
+</div>
 <script>
-const API = '';
+const API='';
 async function load(){
- try{
-  const r = await fetch(API+'/api/transactions'); const data = await r.json();
-  const s = data.summary; document.getElementById('income').textContent = '$'+s.income.toFixed(2);
-  document.getElementById('spent').textContent = '-$'+s.spent.toFixed(2);
-  document.getElementById('net').textContent = '$'+s.net.toFixed(2);
-  const tbody = document.getElementById('tx'); tbody.innerHTML='';
-  data.transactions.forEach(t=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${t.date}</td><td>${t.desc}</td><td>${t.merchant}</td><td style="color:${t.amount>0?'green':'red'}">${t.amount>0?'+':''}${t.amount.toFixed(2)}</td><td><span class="badge ${t.amount>0?'income':'expense'}">${t.type}</span></td>`;
-    tbody.appendChild(tr);
-  });
- }catch(e){document.body.innerHTML+='<p style="color:red">Error loading: '+e+'</p>'}
+ const r=await fetch(API+'/api/transactions'); const data=await r.json(); const s=data.summary;
+ document.getElementById('income').textContent='$'+s.income.toFixed(2);
+ document.getElementById('spent').textContent='-$'+s.spent.toFixed(2);
+ document.getElementById('net').textContent='$'+s.net.toFixed(2);
+ const tbody=document.getElementById('tx'); tbody.innerHTML='';
+ data.transactions.forEach(t=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${t.date}</td><td>${t.desc}</td><td>${t.merchant}</td><td style="color:${t.amount>0?'green':'red'}">${t.amount.toFixed(2)}</td>`; tbody.appendChild(tr); });
+ // INSIGHTS
+ const exp=data.transactions.filter(t=>t.amount<0); const top=exp.sort((a,b)=>a.amount-b.amount)[0];
+ const mpesa=exp.filter(t=>t.method==='M-Pesa').length; const savings = s.net/s.income*100;
+ document.getElementById('insights').innerHTML=`
+   <div class="insight">💸 Top Spend: ${top?top.desc+' '+top.amount:'None'} — cut this first</div>
+   <div class="insight">📱 M-Pesa Usage: ${mpesa}/${exp.length} transactions are M-Pesa sim</div>
+   <div class="insight">💰 Savings Rate: ${savings.toFixed(1)}% of income saved (Net $${s.net.toFixed(2)})</div>
+   <div class="insight">💡 Tip: You got $150 from Upwork via PayPal. If you move $20 to savings each gig, you'll have $240 in 3 months</div>`;
 }
-async function payPal(){
- const r=await fetch(API+'/api/paypal/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:10})});
- const d=await r.json(); document.getElementById('msg').textContent=d.message; load();
-}
-async function resetDemo(){
- const r=await fetch(API+'/api/reset-demo',{method:'POST'}); const d=await r.json(); document.getElementById('msg').textContent=d.message; load();
-}
-async function askAI(){
- const q=document.getElementById('chatInput').value; const r=await fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q})}); const d=await r.json(); document.getElementById('aiReply').textContent=d.reply;
+async function payPal(){ const r=await fetch(API+'/api/paypal/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:10})}); const d=await r.json(); document.getElementById('msg').textContent=d.message; load(); }
+async function resetDemo(){ const r=await fetch(API+'/api/reset-demo',{method:'POST'}); const d=await r.json(); document.getElementById('msg').textContent=d.message; load(); }
+async function askAI(){ const q=document.getElementById('chatInput').value; if(!q) return; const r=await fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q})}); const d=await r.json(); document.getElementById('aiReply').textContent=d.reply; }
+function startMic(){
+ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+ if(!SpeechRecognition){ alert('Mic not supported on this browser, use Chrome'); return; }
+ const rec = new SpeechRecognition(); rec.lang='en-KE'; rec.start();
+ document.getElementById('msg').textContent='🎤 Listening...';
+ rec.onresult = e => { document.getElementById('chatInput').value = e.results[0][0].transcript; document.getElementById('msg').textContent='🎤 Heard! Click Ask'; };
+ rec.onerror = e => { document.getElementById('msg').textContent='Mic error: '+e.error; };
 }
 load();
-</script>
-</body>
-</html>
+</script></body></html>
