@@ -1,13 +1,63 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="PesaAI, an AI money coach for Kenyan freelancers paid in USD via PayPal." />
-    <title>PesaAI, AI money coach for freelancers</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PesaAI</title>
+<style>
+body{font-family:system-ui;background:#f8fafc;margin:0;padding:20px;color:#111}
+.card{background:white;border-radius:12px;padding:16px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+h2{margin:0;font-size:14px;color:#666} .val{font-size:24px;font-weight:700;margin-top:4px}
+.btn{padding:10px 16px;border:0;border-radius:8px;font-weight:600;cursor:pointer;margin-right:8px}
+.btn-pay{background:#0070ba;color:white} .btn-reset{background:#111;color:white}
+table{width:100%;border-collapse:collapse;margin-top:10px} th,td{padding:8px;text-align:left;border-bottom:1px solid #eee;font-size:14px}
+.badge{padding:2px 8px;border-radius:999px;font-size:12px} .income{background:#dcfce7} .expense{background:#fee2e2}
+</style>
+</head>
+<body>
+<h1>PesaAI - Freelancer Finance Kenya</h1>
+<div class="grid">
+<div class="card"><h2>INCOME (via PayPal)</h2><div class="val" id="income">$0</div></div>
+<div class="card"><h2>SPENT (M-Pesa sim)</h2><div class="val" id="spent" style="color:#dc2626">$0</div></div>
+<div class="card"><h2>NET (KES ~)</h2><div class="val" id="net">$0</div></div>
+</div>
+<div class="card">
+<button class="btn btn-pay" onclick="payPal()">Pay with PayPal (+$10)</button>
+<button class="btn btn-reset" onclick="resetDemo()">Reset Demo</button>
+<span id="msg" style="margin-left:10px;color:#059669"></span>
+</div>
+<div class="card">
+<h3>Transactions</h3>
+<table><thead><tr><th>Date</th><th>Description</th><th>Merchant</th><th>Amount</th><th>Type</th></tr></thead><tbody id="tx"></tbody></table>
+</div>
+<div class="card"><h3>AI Money Coach</h3><input id="chatInput" placeholder="Ask about your spending..." style="width:70%;padding:8px"><button onclick="askAI()" class="btn btn-reset">Ask</button><div id="aiReply" style="margin-top:10px;color:#333"></div></div>
+<script>
+const API = '';
+async function load(){
+ try{
+  const r = await fetch(API+'/api/transactions'); const data = await r.json();
+  const s = data.summary; document.getElementById('income').textContent = '$'+s.income.toFixed(2);
+  document.getElementById('spent').textContent = '-$'+s.spent.toFixed(2);
+  document.getElementById('net').textContent = '$'+s.net.toFixed(2);
+  const tbody = document.getElementById('tx'); tbody.innerHTML='';
+  data.transactions.forEach(t=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${t.date}</td><td>${t.desc}</td><td>${t.merchant}</td><td style="color:${t.amount>0?'green':'red'}">${t.amount>0?'+':''}${t.amount.toFixed(2)}</td><td><span class="badge ${t.amount>0?'income':'expense'}">${t.type}</span></td>`;
+    tbody.appendChild(tr);
+  });
+ }catch(e){document.body.innerHTML+='<p style="color:red">Error loading: '+e+'</p>'}
+}
+async function payPal(){
+ const r=await fetch(API+'/api/paypal/create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:10})});
+ const d=await r.json(); document.getElementById('msg').textContent=d.message; load();
+}
+async function resetDemo(){
+ const r=await fetch(API+'/api/reset-demo',{method:'POST'}); const d=await r.json(); document.getElementById('msg').textContent=d.message; load();
+}
+async function askAI(){
+ const q=document.getElementById('chatInput').value; const r=await fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q})}); const d=await r.json(); document.getElementById('aiReply').textContent=d.reply;
+}
+load();
+</script>
+</body>
 </html>
